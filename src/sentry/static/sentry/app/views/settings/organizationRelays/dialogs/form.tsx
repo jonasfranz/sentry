@@ -8,18 +8,18 @@ import space from 'app/styles/space';
 
 import FormField from './formField';
 
-type FormField = 'name' | 'description';
+type FormField = 'name' | 'description' | 'publicKey';
 type Values = Record<FormField, string>;
 
 type Props = {
   values: Values;
   errors: Partial<Values>;
+  disables: Partial<Record<FormField, boolean>>;
   onValidate: (field: FormField) => () => void;
   onChange: (field: FormField, value: string) => void;
-  disabled?: boolean;
 };
 
-const Form = ({disabled, values, errors, onValidate, onChange}: Props) => (
+const Form = ({values, errors, onValidate, onChange, disables}: Props) => (
   <Wrapper>
     <FormField label={t('Name')} isFullWidth>
       <StyledTextField
@@ -30,7 +30,19 @@ const Form = ({disabled, values, errors, onValidate, onChange}: Props) => (
         value={values.name}
         onBlur={onValidate('name')}
         error={errors.name}
-        disabled={disabled}
+        disabled={disables.name}
+      />
+    </FormField>
+    <FormField label={t('Key')} isFullWidth>
+      <TextareaField
+        name="publicKey"
+        onChange={value => {
+          onChange('publicKey', value as string);
+        }}
+        value={values.publicKey}
+        onBlur={onValidate('publicKey')}
+        error={errors.publicKey}
+        disabled={disables.publicKey}
       />
     </FormField>
     <FormField label={t('Description')} isFullWidth>
@@ -42,7 +54,7 @@ const Form = ({disabled, values, errors, onValidate, onChange}: Props) => (
         value={values.description}
         onBlur={onValidate('description')}
         error={errors.description}
-        disabled={disabled}
+        disabled={disables.description}
       />
     </FormField>
   </Wrapper>

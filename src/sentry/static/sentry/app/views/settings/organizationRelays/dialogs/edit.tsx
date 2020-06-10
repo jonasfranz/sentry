@@ -23,8 +23,10 @@ class Edit extends FormStateManager<Props, FormStateManager['state']> {
       ...super.getDefaultState(),
       values: {
         name: this.props.relay.name,
+        publicKey: this.props.relay.publicKey,
         description: this.props.relay.description || '',
       },
+      disables: {publicKey: true},
       open: true,
     };
   }

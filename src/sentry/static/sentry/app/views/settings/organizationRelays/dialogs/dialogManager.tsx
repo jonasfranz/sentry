@@ -18,6 +18,7 @@ type Props = {
 type State = {
   values: Values;
   requiredValues: Array<keyof Values>;
+  disables: FormProps['disables'];
   errors: FormProps['errors'];
   isFormValid: boolean;
   title: string;
@@ -42,9 +43,10 @@ class DialogManager<
 
   getDefaultState(): Readonly<S> {
     return {
-      values: {name: '', description: ''},
-      requiredValues: ['name'],
+      values: {name: '', publicKey: '', description: ''},
+      requiredValues: ['name', 'publicKey'],
       errors: {},
+      disables: {},
       isFormValid: false,
       open: !!this.props.open,
       title: this.getTitle(),
@@ -119,7 +121,7 @@ class DialogManager<
 
   render() {
     const {onClose} = this.props;
-    const {values, errors, title, isFormValid, open} = this.state;
+    const {values, errors, title, isFormValid, open, disables} = this.state;
 
     return (
       <Dialog
@@ -133,6 +135,7 @@ class DialogManager<
             onValidate={this.handleValidate}
             errors={errors}
             values={values}
+            disables={disables}
           />
         }
         open={open}
