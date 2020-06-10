@@ -10,21 +10,14 @@ import {Organization} from 'app/types';
 import ExternalLink from 'app/components/links/externalLink';
 import space from 'app/styles/space';
 import Button from 'app/components/button';
-import {IconDelete} from 'app/icons';
+import {IconDelete, IconEdit} from 'app/icons';
 
 import Time from './time';
+import {Add, Edit} from './dialogs';
 
 const RELAY_DOCS_LINK = 'https://getsentry.github.io/relay/';
 
-type Relay = {
-  public_key: string;
-  name: string;
-  created: string;
-  first_seen: string;
-  last_seen: string | null;
-  last_modified?: string;
-  description?: string;
-};
+type Relay = React.ComponentProps<typeof Edit>['relay'];
 
 type Props = {
   organization: Organization;
@@ -32,24 +25,26 @@ type Props = {
 
 type State = AsyncComponent['state'] & {
   relays: Array<Relay>;
+  openAddDialog: boolean;
+  editRelay?: Relay;
 };
 
 const relaysMock: Array<Relay> = [
   {
-    public_key: '1:bb:6e:af:66:b4:38:e0:62:83:62:15:22:7',
+    publicKey: '1:bb:6e:af:66:b4:38:e0:62:83:62:15:22:7',
     name: 'First key',
     description: 'optional description for the key',
-    first_seen: '2020-02-07T15:17:00Z',
-    last_seen: '2020-02-07T15:17:00Z',
+    firstUsed: '2020-02-07T15:17:00Z',
+    lastUsed: '2020-02-07T15:17:00Z',
     created: '2020-02-07T15:17:00Z',
   },
   {
-    public_key: '2:bb:6e:af:66:b4:38:e0:62:83:62:15:22:7',
+    publicKey: '2:bb:6e:af:66:b4:38:e0:62:83:62:15:22:7',
     name: 'Second key',
     description: 'optional description for the key',
-    first_seen: '2020-02-07T15:17:00Z',
-    last_seen: '2020-02-07T15:17:00Z',
-    last_modified: '2020-02-07T15:17:00Z',
+    firstUsed: '2020-02-07T15:17:00Z',
+    lastUsed: '2020-02-07T15:17:00Z',
+    lastModified: '2020-02-07T15:17:00Z',
     created: '2020-02-07T15:17:00Z',
   },
 ];
@@ -59,6 +54,7 @@ class Relays extends AsyncComponent<Props, State> {
     return {
       ...super.getDefaultState(),
       relays: relaysMock,
+      openAddDialog: false,
     };
   }
 
@@ -69,10 +65,21 @@ class Relays extends AsyncComponent<Props, State> {
 
   // handleDelete = (id: Relay['public_key']) => () => {};
 
-  handleAdd = () => {};
+  handleToggleEditDialog = (publicKey?: Relay['publicKey']) => () => {
+    this.setState(prevState => ({
+      editRelay: publicKey
+        ? prevState.relays.find(relay => relay.publicKey === publicKey)
+        : undefined,
+    }));
+  };
+
+  handleToggleAddDialog = (openAddDialog: boolean) => () => {
+    this.setState({openAddDialog});
+  };
 
   renderBody() {
-    const {relays} = this.state;
+    const {relays, openAddDialog, editRelay} = this.state;
+
     return (
       <React.Fragment>
         <SettingsPageHeader title={t('Relays')} />
@@ -89,34 +96,43 @@ class Relays extends AsyncComponent<Props, State> {
           </PanelAlert>
           <PanelBody>
             {relays.map(
-              ({public_key, name, created, last_seen, first_seen, last_modified}) => (
-                <Content key={public_key}>
+              ({publicKey: key, name, created, lastUsed, firstUsed, lastModified}) => (
+                <Content key={key}>
                   <Info>
                     <InfoItem>
                       <Name>{name}</Name>
                     </InfoItem>
                     <InfoItem>
-                      <PublicKey>{public_key}</PublicKey>
+                      <PublicKey>{key}</PublicKey>
                     </InfoItem>
                     <InfoItem>
-                      <Time label={t('Created:')} date={created} />
+                      <Time label={t('Added on:')} date={created} />
                     </InfoItem>
                     <InfoItem>
-                      <Time label={t('First Seen:')} date={first_seen} />
+                      <Time label={t('First used:')} date={firstUsed} />
                     </InfoItem>
                     <InfoItem>
-                      <Time label={t('Last Seen:')} date={last_seen} />
+                      <Time label={t('Last used:')} date={lastUsed} />
                     </InfoItem>
                     <InfoItem>
-                      <Time label={t('Last modified:')} date={last_modified} />
+                      <Time label={t('Last modified:')} date={lastModified} />
                     </InfoItem>
                   </Info>
-                  <Button
-                    title={t('Delete Rule')}
-                    label={t('Delete Rule')}
-                    size="small"
-                    icon={<IconDelete />}
-                  />
+                  <Actions>
+                    <Button
+                      title={t('Edit Rule')}
+                      label={t('Edit Rule')}
+                      size="small"
+                      icon={<IconEdit />}
+                      onClick={this.handleToggleEditDialog(key)}
+                    />
+                    <Button
+                      title={t('Delete Rule')}
+                      label={t('Delete Rule')}
+                      size="small"
+                      icon={<IconDelete />}
+                    />
+                  </Actions>
                 </Content>
               )
             )}
@@ -125,11 +141,15 @@ class Relays extends AsyncComponent<Props, State> {
             <Button href={RELAY_DOCS_LINK} target="_blank">
               {t('Read the docs')}
             </Button>
-            <Button onClick={this.handleAdd} priority="primary">
+            <Button onClick={this.handleToggleAddDialog(true)} priority="primary">
               {t('Add Relay')}
             </Button>
           </PanelAction>
         </Panel>
+        <Add onClose={this.handleToggleAddDialog(false)} open={openAddDialog} />
+        {editRelay && (
+          <Edit onClose={this.handleToggleEditDialog(undefined)} relay={editRelay} />
+        )}
       </React.Fragment>
     );
   }
@@ -142,7 +162,7 @@ const Content = styled('div')`
   grid-template-columns: 1fr max-content;
   align-items: center;
   border-bottom: 1px solid ${p => p.theme.borderDark};
-  padding: ${space(1)} ${space(2)};
+  padding: ${space(2)};
   :last-child {
     border-bottom: 0;
   }
@@ -156,6 +176,12 @@ const Info = styled('div')`
   > *:nth-child(2) {
     grid-column: span 4;
   }
+`;
+
+const Actions = styled('div')`
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  grid-gap: ${space(1)};
 `;
 
 const InfoItem = styled('div')`
