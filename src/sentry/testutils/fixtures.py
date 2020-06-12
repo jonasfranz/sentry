@@ -283,6 +283,9 @@ class Fixtures(object):
             alert_rule_trigger, target_identifier=target_identifier, **kwargs
         )
 
+    def create_relay(self, **kwargs):
+        return Factories.create_relay(**kwargs)
+
     @pytest.fixture(autouse=True)
     def _init_insta_snapshot(self, insta_snapshot):
         self.insta_snapshot = insta_snapshot

@@ -36,12 +36,14 @@ class OrganizationRelayKeysEndpoint(OrganizationEndpoint):
         public_keys = [key_info.get("public_key") for key_info in relay_keys]
         usage = _get_keys_usage(public_keys)
         ret_val = _add_usage_info(relay_keys, usage)
-
         return Response(_to_camel(ret_val), status=status.HTTP_200_OK)
 
     def put(self, request, organization, public_key):
         self.check_feature_enabled(request, organization)
         data = _to_snake(request.json_body)
+        if data is None:
+            return Response(_error("missing request body"), status=status.HTTP_400_BAD_REQUEST)
+
         relay_keys = organization.get_option(ORG_RELAYS_OPTION, [])
 
         for existing_key in relay_keys:
@@ -50,15 +52,19 @@ class OrganizationRelayKeysEndpoint(OrganizationEndpoint):
                 existing_key["name"] = data.get("name")
                 existing_key["description"] = data.get("description")
                 ret_val = existing_key
+                status_code = status.HTTP_200_OK
                 break
         else:
             data["public_key"] = public_key
             data["created"] = datetime.utcnow()
             relay_keys.append(data)
+            status_code = status.HTTP_201_CREATED
             ret_val = data
 
+        ret_val["last_modified"] = datetime.utcnow()
+
         organization.update_option(ORG_RELAYS_OPTION, relay_keys)
-        return Response(_to_camel(ret_val), status=status.HTTP_200_OK)
+        return Response(_to_camel(ret_val), status=status_code)
 
     def delete(self, request, organization, public_key):
         self.check_feature_enabled(request, organization)
@@ -77,10 +83,15 @@ def _add_usage_info(relay_keys, usage_dict):
         ret_val = deepcopy(info)
         key = ret_val.get("public_key")
         usage_info = usage_dict.get(key, {})
-        for key in ("last_used", "first_used"):
-            val = usage_info.get(key)
-            if val is not None:
-                ret_val[key] = val
+
+        val = usage_info.get("first_seen")
+        if val is not None:
+            ret_val["first_used"] = val
+
+        val = usage_info.get("last_seen")
+        if val is not None:
+            ret_val["last_used"] = val
+
         return ret_val
 
     if relay_keys is None:

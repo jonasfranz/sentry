@@ -69,6 +69,7 @@ from sentry.models import (
     GroupLink,
     ReleaseFile,
     Rule,
+    Relay,
 )
 from sentry.models.integrationfeature import Feature, IntegrationFeature
 from sentry.signals import project_created
@@ -910,3 +911,7 @@ class Factories(object):
         return create_alert_rule_trigger_action(
             trigger, type, target_type, target_identifier, integration
         )
+
+    @staticmethod
+    def create_relay(**kwargs):
+        return Relay.objects.create(**kwargs)
