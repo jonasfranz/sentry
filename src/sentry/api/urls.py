@@ -129,6 +129,7 @@ from .endpoints.organization_plugins_configs import OrganizationPluginsConfigsEn
 from .endpoints.organization_processingissues import OrganizationProcessingIssuesEndpoint
 from .endpoints.organization_projects import OrganizationProjectsEndpoint
 from .endpoints.organization_recent_searches import OrganizationRecentSearchesEndpoint
+from .endpoints.organization_relay_keys import OrganizationRelayKeysEndpoint
 from .endpoints.organization_release_assemble import OrganizationReleaseAssembleEndpoint
 from .endpoints.organization_release_commits import OrganizationReleaseCommitsEndpoint
 from .endpoints.organization_release_previous_commits import (
@@ -1091,6 +1092,16 @@ urlpatterns = [
                     r"^(?P<organization_slug>[^\/]+)/join-request/$",
                     OrganizationJoinRequestEndpoint.as_view(),
                     name="sentry-api-0-organization-join-request",
+                ),
+                url(
+                    r"^(?P<organization_slug>[^\/]+)/relay-keys/$",
+                    OrganizationRelayKeysEndpoint.as_view(),
+                    name="sentry-api-0-organization-relay-keys",
+                ),
+                url(
+                    r"^(?P<organization_slug>[^\/]+)/relay-keys/(?P<public_key>[^\/]+)/$",
+                    OrganizationRelayKeysEndpoint.as_view(),
+                    name="sentry-api-0-organization-relay-key",
                 ),
             ]
         ),

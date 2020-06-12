@@ -33,3 +33,10 @@ class Relay(Model):
             return True
         # Use the normalized form of the public key for the check
         return six.text_type(self.public_key_object) in org.get_option("sentry:trusted-relays", [])
+
+    @staticmethod
+    def for_keys(keys):
+        """
+        Returns all the relays that are configured with one of the specified keys
+        """
+        return Relay.objects.filter(public_key__in=keys)
