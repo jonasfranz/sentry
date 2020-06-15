@@ -1,16 +1,7 @@
 import {t} from 'app/locale';
 
+import {Relay} from '../types';
 import DialogManager from './dialogManager';
-
-type Relay = {
-  publicKey: string;
-  name: string;
-  created: string;
-  firstUsed: string;
-  lastUsed: string | null;
-  lastModified?: string;
-  description?: string;
-};
 
 type Props = {
   relay: Relay;
