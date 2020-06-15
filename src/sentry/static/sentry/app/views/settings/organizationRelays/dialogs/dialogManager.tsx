@@ -3,6 +3,7 @@ import omit from 'lodash/omit';
 import isEqual from 'lodash/isEqual';
 
 import {t} from 'app/locale';
+import {ModalRenderProps} from 'app/actionCreators/modal';
 
 import Form from './form';
 import Dialog from './dialog';
@@ -10,10 +11,7 @@ import Dialog from './dialog';
 type FormProps = React.ComponentProps<typeof Form>;
 type Values = FormProps['values'];
 
-type Props = {
-  onClose: () => void;
-  open?: boolean;
-};
+type Props = ModalRenderProps;
 
 type State = {
   values: Values;
@@ -22,7 +20,6 @@ type State = {
   errors: FormProps['errors'];
   isFormValid: boolean;
   title: string;
-  open: boolean;
 };
 
 class DialogManager<
@@ -48,17 +45,8 @@ class DialogManager<
       errors: {},
       disables: {},
       isFormValid: false,
-      open: !!this.props.open,
       title: this.getTitle(),
     } as Readonly<S>;
-  }
-
-  setOpen(open: S['open']) {
-    this.setState({open});
-  }
-
-  setErrors(errors: S['errors']) {
-    this.setState({errors});
   }
 
   getTitle(): string {
@@ -77,12 +65,13 @@ class DialogManager<
         ...prevState.values,
         [field]: value,
       },
+      errors: omit(prevState.errors, field),
     }));
   };
 
   handleSave = () => {
     // implement save method
-    this.props.onClose();
+    this.props.closeModal();
   };
 
   handleValidateForm = () => {
@@ -120,13 +109,12 @@ class DialogManager<
   }
 
   render() {
-    const {onClose} = this.props;
-    const {values, errors, title, isFormValid, open, disables} = this.state;
+    const {values, errors, title, isFormValid, disables} = this.state;
 
     return (
       <Dialog
+        {...this.props}
         title={title}
-        onClose={onClose}
         onSave={this.handleSave}
         disabled={!isFormValid}
         content={
@@ -138,7 +126,6 @@ class DialogManager<
             disables={disables}
           />
         }
-        open={open}
       />
     );
   }

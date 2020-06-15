@@ -1,6 +1,6 @@
 import {t} from 'app/locale';
 
-import FormStateManager from './dialogManager';
+import DialogManager from './dialogManager';
 
 type Relay = {
   publicKey: string;
@@ -13,11 +13,12 @@ type Relay = {
 };
 
 type Props = {
-  onClose: () => void;
   relay: Relay;
-};
+} & DialogManager['props'];
 
-class Edit extends FormStateManager<Props, FormStateManager['state']> {
+type State = DialogManager['state'];
+
+class Edit extends DialogManager<Props, State> {
   getDefaultState() {
     return {
       ...super.getDefaultState(),
@@ -27,7 +28,6 @@ class Edit extends FormStateManager<Props, FormStateManager['state']> {
         description: this.props.relay.description || '',
       },
       disables: {publicKey: true},
-      open: true,
     };
   }
 

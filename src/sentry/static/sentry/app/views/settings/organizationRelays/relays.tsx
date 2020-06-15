@@ -2,6 +2,7 @@ import React from 'react';
 import {RouteComponentProps} from 'react-router/lib/Router';
 import styled from '@emotion/styled';
 
+import {openModal} from 'app/actionCreators/modal';
 import {Panel, PanelBody, PanelHeader, PanelAlert} from 'app/components/panels';
 import {t, tct} from 'app/locale';
 import AsyncComponent from 'app/components/asyncComponent';
@@ -54,7 +55,6 @@ class Relays extends AsyncComponent<Props, State> {
     return {
       ...super.getDefaultState(),
       relays: relaysMock,
-      openAddDialog: false,
     };
   }
 
@@ -66,19 +66,21 @@ class Relays extends AsyncComponent<Props, State> {
   // handleDelete = (id: Relay['public_key']) => () => {};
 
   handleToggleEditDialog = (publicKey?: Relay['publicKey']) => () => {
-    this.setState(prevState => ({
-      editRelay: publicKey
-        ? prevState.relays.find(relay => relay.publicKey === publicKey)
-        : undefined,
-    }));
+    const editRelay = this.state.relays.find(relay => relay.publicKey === publicKey);
+
+    if (!editRelay) {
+      return;
+    }
+
+    openModal(modalProps => <Edit {...modalProps} relay={editRelay} />);
   };
 
-  handleToggleAddDialog = (openAddDialog: boolean) => () => {
-    this.setState({openAddDialog});
+  handleToggleAddDialog = () => {
+    openModal(modalProps => <Add {...modalProps} />);
   };
 
   renderBody() {
-    const {relays, openAddDialog, editRelay} = this.state;
+    const {relays} = this.state;
 
     return (
       <React.Fragment>
@@ -141,15 +143,11 @@ class Relays extends AsyncComponent<Props, State> {
             <Button href={RELAY_DOCS_LINK} target="_blank">
               {t('Read the docs')}
             </Button>
-            <Button onClick={this.handleToggleAddDialog(true)} priority="primary">
+            <Button onClick={this.handleToggleAddDialog} priority="primary">
               {t('Add Relay')}
             </Button>
           </PanelAction>
         </Panel>
-        <Add onClose={this.handleToggleAddDialog(false)} open={openAddDialog} />
-        {editRelay && (
-          <Edit onClose={this.handleToggleEditDialog(undefined)} relay={editRelay} />
-        )}
       </React.Fragment>
     );
   }

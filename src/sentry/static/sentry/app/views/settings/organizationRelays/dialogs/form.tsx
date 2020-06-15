@@ -2,11 +2,10 @@ import React from 'react';
 import styled from '@emotion/styled';
 
 import {t} from 'app/locale';
-import TextField from 'app/components/forms/textField';
-import TextareaField from 'app/components/forms/textareaField';
+import Input from 'app/views/settings/components/forms/controls/input';
+import Textarea from 'app/views/settings/components/forms/controls/textarea';
+import Field from 'app/views/settings/components/forms/field';
 import space from 'app/styles/space';
-
-import FormField from './formField';
 
 type FormField = 'name' | 'description' | 'publicKey';
 type Values = Record<FormField, string>;
@@ -19,50 +18,72 @@ type Props = {
   onChange: (field: FormField, value: string) => void;
 };
 
-const Form = ({values, errors, onValidate, onChange, disables}: Props) => (
-  <Wrapper>
-    <FormField label={t('Name')} isFullWidth>
-      <StyledTextField
-        name="name"
-        onChange={(value: string) => {
-          onChange('name', value);
-        }}
-        value={values.name}
-        onBlur={onValidate('name')}
+const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
+  const handleChange = (field: FormField) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    onChange(field, event.target.value);
+  };
+
+  return (
+    <Wrapper>
+      <Field
+        flexibleControlStateSize
+        label={t('Name')}
         error={errors.name}
-        disabled={disables.name}
-      />
-    </FormField>
-    <FormField label={t('Key')} isFullWidth>
-      <TextareaField
-        name="publicKey"
-        onChange={value => {
-          onChange('publicKey', value as string);
-        }}
-        value={values.publicKey}
-        onBlur={onValidate('publicKey')}
+        inline={false}
+        stacked
+      >
+        <TextField
+          type="text"
+          name="name"
+          onChange={handleChange('name')}
+          value={values.name}
+          onBlur={onValidate('name')}
+          disabled={disables.name}
+        />
+      </Field>
+      <Field
+        flexibleControlStateSize
+        label={t('Public Key')}
         error={errors.publicKey}
-        disabled={disables.publicKey}
-      />
-    </FormField>
-    <FormField label={t('Description')} isFullWidth>
-      <TextareaField
-        name="description"
-        onChange={value => {
-          onChange('description', value as string);
-        }}
-        value={values.description}
-        onBlur={onValidate('description')}
+        inline={false}
+        help={t(
+          'Only enter the public_key value from your credentials file. Never share the secret_key with Sentry or any third party'
+        )}
+        stacked
+      >
+        <TextField
+          type="text"
+          name="publicKey"
+          onChange={handleChange('publicKey')}
+          value={values.publicKey}
+          onBlur={onValidate('publicKey')}
+          disabled={disables.publicKey}
+        />
+      </Field>
+      <Field
+        flexibleControlStateSize
+        label={t('Description')}
         error={errors.description}
-        disabled={disables.description}
-      />
-    </FormField>
-  </Wrapper>
-);
+        inline={false}
+        stacked
+      >
+        <Textarea
+          name="description"
+          onChange={handleChange('description')}
+          value={values.description}
+          onBlur={onValidate('description')}
+          disabled={disables.description}
+        />
+      </Field>
+    </Wrapper>
+  );
+};
 
 export default Form;
 
-const StyledTextField = styled(TextField)`
+const TextField = styled(Input)`
   font-size: ${p => p.theme.fontSizeSmall};
   height: 40px;
   input {
