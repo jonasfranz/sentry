@@ -11,7 +11,9 @@ import Dialog from './dialog';
 type FormProps = React.ComponentProps<typeof Form>;
 type Values = FormProps['values'];
 
-type Props = ModalRenderProps;
+type Props = ModalRenderProps & {
+  onSave?: (values: Values) => void;
+};
 
 type State = {
   values: Values;
@@ -70,8 +72,13 @@ class DialogManager<
   };
 
   handleSave = () => {
-    // implement save method
-    this.props.closeModal();
+    const {onSave, closeModal} = this.props;
+
+    if (onSave) {
+      onSave(this.state.values);
+    }
+
+    closeModal();
   };
 
   handleValidateForm = () => {

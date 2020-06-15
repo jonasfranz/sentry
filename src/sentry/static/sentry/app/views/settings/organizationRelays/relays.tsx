@@ -11,6 +11,7 @@ import {Organization} from 'app/types';
 import ExternalLink from 'app/components/links/externalLink';
 import space from 'app/styles/space';
 import Button from 'app/components/button';
+import {addErrorMessage, addSuccessMessage} from 'app/actionCreators/indicator';
 
 import {Relay} from './types';
 import Content from './content';
@@ -33,7 +34,35 @@ class Relays extends AsyncComponent<Props, State> {
     return [['relays', `/organizations/${this.props.organization.slug}/relay-keys/`]];
   }
 
-  handleDelete = (publicKey: Relay['public_key']) => () => {};
+  handleDelete = (publicKey: Relay['publicKey']) => async () => {
+    try {
+      await this.api.requestPromise(
+        `/organizations/${this.props.organization.slug}/relay-keys/${publicKey}/`,
+        {method: 'DELETE'}
+      );
+      addSuccessMessage('Successfully deleted relay public key');
+      this.setState(prevState => ({
+        relays: prevState.relays.filter(relay => relay.publicKey !== publicKey),
+      }));
+    } catch {
+      addErrorMessage('An unknown error occurred while deleting relay public key');
+    }
+  };
+
+  handleSave = async (data: Parameters<Add['props']['onSave']>[0]) => {
+    try {
+      const response = await this.api.requestPromise(
+        `/organizations/${this.props.organization.slug}/relay-keys/${data.publicKey}/`,
+        {method: 'PUT', data}
+      );
+      addSuccessMessage('Successfully saved relay public key');
+      this.setState(prevState => ({
+        relays: [...prevState.relays, response],
+      }));
+    } catch {
+      addErrorMessage('An unknown error occurred while saving relay public key');
+    }
+  };
 
   handleToggleEditDialog = (publicKey?: Relay['publicKey']) => () => {
     const editRelay = this.state.relays.find(relay => relay.publicKey === publicKey);
@@ -46,7 +75,7 @@ class Relays extends AsyncComponent<Props, State> {
   };
 
   handleToggleAddDialog = () => {
-    openModal(modalProps => <Add {...modalProps} />);
+    openModal(modalProps => <Add {...modalProps} onSave={this.handleSave} />);
   };
 
   renderBody() {

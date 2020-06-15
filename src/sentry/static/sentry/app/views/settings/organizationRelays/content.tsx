@@ -28,48 +28,40 @@ const Content = ({relays, onEdit, onDelete}: Props) => {
 
   return (
     <React.Fragment>
-      {relays.map(
-        ({publicKey: key, name, created, lastUsed, firstUsed, lastModified}) => (
-          <Wrapper key={key}>
-            <Info>
-              <InfoItem>
-                <Name>{name}</Name>
-              </InfoItem>
-              <InfoItem>
-                <PublicKey>{key}</PublicKey>
-              </InfoItem>
-              <InfoItem>
-                <Time label={t('Added on:')} date={created} />
-              </InfoItem>
-              <InfoItem>
-                <Time label={t('First used:')} date={firstUsed} />
-              </InfoItem>
-              <InfoItem>
-                <Time label={t('Last used:')} date={lastUsed} />
-              </InfoItem>
-              <InfoItem>
-                <Time label={t('Last modified:')} date={lastModified} />
-              </InfoItem>
-            </Info>
-            <Actions>
-              <Button
-                title={t('Edit Rule')}
-                label={t('Edit Rule')}
-                size="small"
-                icon={<IconEdit />}
-                onClick={onEdit(key)}
-              />
-              <Button
-                title={t('Delete Rule')}
-                label={t('Delete Rule')}
-                onClick={onDelete(key)}
-                size="small"
-                icon={<IconDelete />}
-              />
-            </Actions>
-          </Wrapper>
-        )
-      )}
+      {relays.map(({publicKey: key, name, created, lastModified}) => (
+        <Wrapper key={key}>
+          <Info>
+            <InfoItem>
+              <Name>{name}</Name>
+            </InfoItem>
+            <InfoItem>
+              <PublicKey>{key}</PublicKey>
+            </InfoItem>
+            <InfoItem>
+              <Time label={t('Added on:')} date={created} />
+            </InfoItem>
+            <InfoItem>
+              <Time label={t('Last modified:')} date={lastModified} />
+            </InfoItem>
+          </Info>
+          <Actions>
+            <Button
+              title={t('Edit Rule')}
+              label={t('Edit Rule')}
+              size="small"
+              icon={<IconEdit />}
+              onClick={onEdit(key)}
+            />
+            <Button
+              title={t('Delete Rule')}
+              label={t('Delete Rule')}
+              onClick={onDelete(key)}
+              size="small"
+              icon={<IconDelete />}
+            />
+          </Actions>
+        </Wrapper>
+      ))}
     </React.Fragment>
   );
 };

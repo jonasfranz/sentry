@@ -2,7 +2,9 @@ import {t} from 'app/locale';
 
 import DialogManager from './dialogManager';
 
-type Props = DialogManager['props'];
+type Props = {
+  onSave: NonNullable<DialogManager['props']['onSave']>;
+} & DialogManager['props'];
 
 type State = DialogManager['state'];
 
