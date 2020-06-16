@@ -21,7 +21,7 @@ const Content = ({relays, onEdit, onDelete}: Props) => {
     return (
       <EmptyMessage
         icon={<IconWarning size="xl" />}
-        description={t('You have no relays')}
+        description={t('You have no relays configured')}
       />
     );
   }
