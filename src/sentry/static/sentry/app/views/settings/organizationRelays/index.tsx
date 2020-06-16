@@ -10,7 +10,7 @@ import Relays from './relays';
 
 const OrganizationRelays = ({organization, ...props}: Relays['props']) => (
   <Feature
-    features={['relay']}
+    features={['relay-config']}
     organization={organization}
     renderDisabled={() => (
       <FeatureDisabled
