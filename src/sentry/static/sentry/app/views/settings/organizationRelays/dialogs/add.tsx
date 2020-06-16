@@ -10,7 +10,7 @@ type State = DialogManager['state'];
 
 class Add extends DialogManager<Props, State> {
   getTitle() {
-    return t('Add relay');
+    return t('New Relay Key');
   }
 }
 

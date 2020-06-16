@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 
 import {t} from 'app/locale';
+import QuestionTooltip from 'app/components/questionTooltip';
 import Input from 'app/views/settings/components/forms/controls/input';
 import Textarea from 'app/views/settings/components/forms/controls/textarea';
 import Field from 'app/views/settings/components/forms/field';
@@ -26,10 +27,10 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
   };
 
   return (
-    <Wrapper>
+    <React.Fragment>
       <Field
         flexibleControlStateSize
-        label={t('Name')}
+        label={t('Display Name')}
         error={errors.name}
         inline={false}
         stacked
@@ -45,12 +46,20 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
       </Field>
       <Field
         flexibleControlStateSize
-        label={t('Public Key')}
+        label={
+          <Label>
+            <div>{t('Relay Key')}</div>
+            <QuestionTooltip
+              position="top"
+              size="sm"
+              title={t(
+                'Only enter the Relay Key value from your credentials file. Never share the Secret key with Sentry or any third party'
+              )}
+            />
+          </Label>
+        }
         error={errors.publicKey}
         inline={false}
-        help={t(
-          'Only enter the public_key value from your credentials file. Never share the secret_key with Sentry or any third party'
-        )}
         stacked
       >
         <TextField
@@ -62,22 +71,15 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
           disabled={disables.publicKey}
         />
       </Field>
-      <Field
-        flexibleControlStateSize
-        label={t('Description')}
-        error={errors.description}
-        inline={false}
-        stacked
-      >
+      <Field flexibleControlStateSize label={t('Description')} inline={false} stacked>
         <Textarea
           name="description"
           onChange={handleChange('description')}
           value={values.description}
-          onBlur={onValidate('description')}
           disabled={disables.description}
         />
       </Field>
-    </Wrapper>
+    </React.Fragment>
   );
 };
 
@@ -85,13 +87,16 @@ export default Form;
 
 const TextField = styled(Input)`
   font-size: ${p => p.theme.fontSizeSmall};
+  margin-bottom: 0;
   height: 40px;
   input {
     height: 40px;
   }
 `;
 
-const Wrapper = styled('div')`
+const Label = styled('div')`
   display: grid;
   grid-gap: ${space(1)};
+  grid-template-columns: max-content max-content;
+  align-items: center;
 `;

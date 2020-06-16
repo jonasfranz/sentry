@@ -23,7 +23,7 @@ class Edit extends DialogManager<Props, State> {
   }
 
   getTitle() {
-    return t('Edit relay');
+    return t('Edit Relay Key');
   }
 }
 
