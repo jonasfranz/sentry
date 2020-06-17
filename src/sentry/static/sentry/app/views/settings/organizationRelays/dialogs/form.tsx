@@ -6,6 +6,7 @@ import QuestionTooltip from 'app/components/questionTooltip';
 import Input from 'app/views/settings/components/forms/controls/input';
 import Textarea from 'app/views/settings/components/forms/controls/textarea';
 import Field from 'app/views/settings/components/forms/field';
+import TextCopyInput from 'app/views/settings/components/forms/textCopyInput';
 import space from 'app/styles/space';
 
 type FormField = 'name' | 'description' | 'publicKey';
@@ -26,6 +27,12 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
     onChange(field, event.target.value);
   };
 
+  // code below copied from src/sentry/static/sentry/app/views/organizationIntegrations/SplitInstallationIdModal.tsx
+  // TODO: fix the common method selectText
+  const onCopy = (value: string) => async () =>
+    //This hack is needed because the normal copying methods with TextCopyInput do not work correctly
+    await navigator.clipboard.writeText(value);
+
   return (
     <React.Fragment>
       <Field
@@ -35,7 +42,7 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
         inline={false}
         stacked
       >
-        <TextField
+        <Input
           type="text"
           name="name"
           onChange={handleChange('name')}
@@ -44,32 +51,40 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
           disabled={disables.name}
         />
       </Field>
+
       <Field
         flexibleControlStateSize
         label={
           <Label>
             <div>{t('Relay Key')}</div>
-            <QuestionTooltip
-              position="top"
-              size="sm"
-              title={t(
-                'Only enter the Relay Key value from your credentials file. Never share the Secret key with Sentry or any third party'
-              )}
-            />
+            {!disables.publicKey && (
+              <QuestionTooltip
+                position="top"
+                size="sm"
+                title={t(
+                  'Only enter the Relay Key value from your credentials file. Never share the Secret key with Sentry or any third party'
+                )}
+              />
+            )}
           </Label>
         }
         error={errors.publicKey}
         inline={false}
         stacked
       >
-        <TextField
-          type="text"
-          name="publicKey"
-          onChange={handleChange('publicKey')}
-          value={values.publicKey}
-          onBlur={onValidate('publicKey')}
-          disabled={disables.publicKey}
-        />
+        {disables.publicKey ? (
+          <TextCopyInput onCopy={onCopy(values.publicKey)}>
+            {values.publicKey}
+          </TextCopyInput>
+        ) : (
+          <Input
+            type="text"
+            name="publicKey"
+            onChange={handleChange('publicKey')}
+            value={values.publicKey}
+            onBlur={onValidate('publicKey')}
+          />
+        )}
       </Field>
       <Field
         flexibleControlStateSize
@@ -89,15 +104,6 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
 };
 
 export default Form;
-
-const TextField = styled(Input)`
-  font-size: ${p => p.theme.fontSizeSmall};
-  margin-bottom: 0;
-  height: 40px;
-  input {
-    height: 40px;
-  }
-`;
 
 const Label = styled('div')`
   display: grid;
