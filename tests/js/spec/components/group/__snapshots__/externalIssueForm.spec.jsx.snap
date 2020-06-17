@@ -538,7 +538,7 @@ exports[`ExternalIssueForm link renders 1`] = `
                                
                               <FieldRequiredBadge>
                                 <div
-                                  className="css-z6v0fv-FieldRequiredBadge e1uclnuk0"
+                                  className="css-e4g9h-FieldRequiredBadge e1uclnuk0"
                                 />
                               </FieldRequiredBadge>
                             </div>
@@ -2483,7 +2483,7 @@ exports[`ExternalIssueForm link renders 1`] = `
                                
                               <FieldRequiredBadge>
                                 <div
-                                  className="css-z6v0fv-FieldRequiredBadge e1uclnuk0"
+                                  className="css-e4g9h-FieldRequiredBadge e1uclnuk0"
                                 />
                               </FieldRequiredBadge>
                             </div>
