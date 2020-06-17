@@ -12,16 +12,10 @@ exports[`EventDataSection renders formatted 1`] = `
       className="permalink"
       href="#extra"
     >
-<<<<<<< HEAD
-      <em
-        className="icon-anchor"
-      />
-=======
       <StyledIconAnchor />
       <h3>
         Additional Data
       </h3>
->>>>>>> fixed header width
     </Permalink>
     <ButtonBar
       active="formatted"
@@ -59,16 +53,10 @@ exports[`EventDataSection renders raw 1`] = `
       className="permalink"
       href="#extra"
     >
-<<<<<<< HEAD
-      <em
-        className="icon-anchor"
-      />
-=======
       <StyledIconAnchor />
       <h3>
         Additional Data
       </h3>
->>>>>>> fixed header width
     </Permalink>
     <ButtonBar
       active="raw"
