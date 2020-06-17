@@ -106,10 +106,9 @@ class Relays extends AsyncComponent<Props, State> {
         />
         <TextBlock>
           {tct(
-            `[relay] is a relay service built by Sentry. You can run this on-premise for your SDKs or server to customize data scrubbing, buffering retries and more. You can generate relay keys for access. For more on how to set this up, read the [docs].`,
+            `Relay is a relay service built by Sentry. You can run this on-premise for your SDKs or server to customize data scrubbing, buffering retries and more. You can generate relay keys for access. For more on how to set this up, read the [link:docs].`,
             {
-              relay: <ExternalLink href={RELAY_DOCS_LINK}>{t('Relay')}</ExternalLink>,
-              docs: <ExternalLink href={RELAY_DOCS_LINK}>{t('docs')}</ExternalLink>,
+              link: <ExternalLink href={RELAY_DOCS_LINK} />,
             }
           )}
         </TextBlock>
