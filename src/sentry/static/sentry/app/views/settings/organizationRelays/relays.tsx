@@ -57,33 +57,44 @@ class Relays extends AsyncComponent<Props, State> {
     }
   };
 
-  handleSave = async (data: Parameters<Add['props']['onSave']>[0]) => {
-    try {
-      const response = await this.api.requestPromise(
-        `/organizations/${this.props.organization.slug}/relay-keys/${data.publicKey}/`,
-        {method: 'PUT', data}
-      );
-      addSuccessMessage('Successfully saved relay public key');
-      this.setState(prevState => ({
-        relays: [...prevState.relays, response],
-      }));
-    } catch {
-      addErrorMessage('An unknown error occurred while saving relay public key');
-    }
+  successfullySaved = (response: Relay, successMessage: string) => {
+    addSuccessMessage(successMessage);
+    this.setState(prevState => ({
+      relays: [...prevState.relays, response],
+    }));
   };
 
-  handleOpenEditDialog = (publicKey?: Relay['publicKey']) => () => {
+  handleOpenEditDialog = (publicKey: Relay['publicKey']) => () => {
     const editRelay = this.state.relays.find(relay => relay.publicKey === publicKey);
 
     if (!editRelay) {
       return;
     }
 
-    openModal(modalProps => <Edit {...modalProps} relay={editRelay} />);
+    openModal(modalProps => (
+      <Edit
+        {...modalProps}
+        api={this.api}
+        orgSlug={this.props.organization.slug}
+        relay={editRelay}
+        onSubmitSuccess={response => {
+          this.successfullySaved(response, t('Successfully updated relay public key'));
+        }}
+      />
+    ));
   };
 
   handleOpenAddDialog = () => {
-    openModal(modalProps => <Add {...modalProps} onSave={this.handleSave} />);
+    openModal(modalProps => (
+      <Add
+        {...modalProps}
+        api={this.api}
+        orgSlug={this.props.organization.slug}
+        onSubmitSuccess={response => {
+          this.successfullySaved(response, t('Successfully added relay public key'));
+        }}
+      />
+    ));
   };
 
   renderBody() {
