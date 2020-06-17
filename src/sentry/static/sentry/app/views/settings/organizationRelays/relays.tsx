@@ -123,38 +123,41 @@ class Relays extends AsyncComponent<Props, State> {
                 }
               `}
             >
-              {relays.map(({publicKey: key, name, created}) => (
-                <React.Fragment key={key}>
-                  <Text>{name}</Text>
-                  <KeyWrapper>
-                    <Text>{key}</Text>
-                    <IconWrapper>
-                      <Clipboard value={key}>
-                        <Tooltip title={t('Click to copy')} containerDisplayMode="flex">
-                          <IconCopy color="gray500" />
-                        </Tooltip>
-                      </Clipboard>
-                    </IconWrapper>
-                  </KeyWrapper>
-                  <Text>
-                    {!defined(created) ? t('Unknown') : <DateTime date={created} />}
-                  </Text>
-                  <Actions>
-                    <StyledButton
-                      title={t('Edit Key')}
-                      label={t('Edit Key')}
-                      icon={<IconEdit />}
-                      onClick={this.handleOpenEditDialog(key)}
-                    />
-                    <StyledButton
-                      title={t('Delete Key')}
-                      label={t('Delete Key')}
-                      onClick={this.handleDelete(key)}
-                      icon={<IconDelete />}
-                    />
-                  </Actions>
-                </React.Fragment>
-              ))}
+              {relays.map(({publicKey: key, name, created}) => {
+                const maskedKey = key.replace(/[^(.*)]/g, '*');
+                return (
+                  <React.Fragment key={key}>
+                    <Text>{name}</Text>
+                    <KeyWrapper>
+                      <Key content={maskedKey}>{maskedKey}</Key>
+                      <IconWrapper>
+                        <Clipboard value={key}>
+                          <Tooltip title={t('Click to copy')} containerDisplayMode="flex">
+                            <IconCopy color="gray500" />
+                          </Tooltip>
+                        </Clipboard>
+                      </IconWrapper>
+                    </KeyWrapper>
+                    <Text>
+                      {!defined(created) ? t('Unknown') : <DateTime date={created} />}
+                    </Text>
+                    <Actions>
+                      <StyledButton
+                        title={t('Edit Key')}
+                        label={t('Edit Key')}
+                        icon={<IconEdit />}
+                        onClick={this.handleOpenEditDialog(key)}
+                      />
+                      <StyledButton
+                        title={t('Delete Key')}
+                        label={t('Delete Key')}
+                        onClick={this.handleDelete(key)}
+                        icon={<IconDelete />}
+                      />
+                    </Actions>
+                  </React.Fragment>
+                );
+              })}
             </PanelTable>
           )}
         </ClassNames>
@@ -181,6 +184,18 @@ const IconWrapper = styled('div')`
 const Text = styled(TextOverflow)`
   color: ${p => p.theme.gray700};
   line-height: 40px;
+`;
+
+const Key = styled(Text)<{content: string}>`
+  visibility: hidden;
+  position: relative;
+  :after {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    content: '${p => p.content}';
+    visibility: visible;
+  }
 `;
 
 const Actions = styled('div')`

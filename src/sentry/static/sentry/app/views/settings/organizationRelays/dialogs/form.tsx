@@ -71,7 +71,12 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
           disabled={disables.publicKey}
         />
       </Field>
-      <Field flexibleControlStateSize label={t('Description')} inline={false} stacked>
+      <Field
+        flexibleControlStateSize
+        label={t('Description (Optional)')}
+        inline={false}
+        stacked
+      >
         <Textarea
           name="description"
           onChange={handleChange('description')}
