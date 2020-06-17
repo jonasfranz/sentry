@@ -39,7 +39,7 @@ exports[`EventSdkUpdates renders a suggestion to update the sdk and then enable 
       className=""
     >
       <div
-        className=" css-14ma22z-DataSection e1z0bih40"
+        className=" css-3rlrsb-DataSection e1z0bih40"
       >
         <SectionContents>
           <div
@@ -52,13 +52,13 @@ exports[`EventSdkUpdates renders a suggestion to update the sdk and then enable 
               type="info"
             >
               <Component
-                className="css-6uh236-Alert ejthpj82"
+                className="css-18y7w8-Alert ejthpj82"
                 icon="icon-upgrade"
                 iconSize="24px"
                 type="info"
               >
                 <div
-                  className="ref-info css-6uh236-Alert ejthpj82"
+                  className="ref-info css-18y7w8-Alert ejthpj82"
                 >
                   <IconWrapper>
                     <span
