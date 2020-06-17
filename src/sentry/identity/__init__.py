@@ -13,6 +13,7 @@ from .bitbucket import *  # NOQA
 from .gitlab import *  # NOQA
 from .google import *  # NOQA
 from .vercel import *  # NOQA
+from .gitea import *  # NOQA
 
 default_manager = IdentityManager()
 all = default_manager.all
@@ -32,3 +33,4 @@ register(VercelIdentityProvider)  # NOQA
 register(BitbucketIdentityProvider)  # NOQA
 register(GitlabIdentityProvider)  # NOQA
 register(GoogleIdentityProvider)  # NOQA
+register(GiteaIdentityProvider)  # NOQA

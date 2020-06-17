@@ -636,6 +636,7 @@ urlpatterns += [
                 url(r"^github/", include("sentry.integrations.github.urls")),
                 url(r"^github-enterprise/", include("sentry.integrations.github_enterprise.urls")),
                 url(r"^gitlab/", include("sentry.integrations.gitlab.urls")),
+                url(r"^gitea/", include("sentry.integrations.gitea.urls")),
                 url(r"^vsts/", include("sentry.integrations.vsts.urls")),
                 url(r"^bitbucket/", include("sentry.integrations.bitbucket.urls")),
                 url(r"^bitbucket-server/", include("sentry.integrations.bitbucket_server.urls")),

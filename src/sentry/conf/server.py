@@ -1560,6 +1560,7 @@ SENTRY_DEFAULT_INTEGRATIONS = (
     "sentry.integrations.github.GitHubIntegrationProvider",
     "sentry.integrations.github_enterprise.GitHubEnterpriseIntegrationProvider",
     "sentry.integrations.gitlab.GitlabIntegrationProvider",
+    "sentry.integrations.gitea.GiteaIntegrationProvider",
     "sentry.integrations.jira.JiraIntegrationProvider",
     "sentry.integrations.jira_server.JiraServerIntegrationProvider",
     "sentry.integrations.vsts.VstsIntegrationProvider",

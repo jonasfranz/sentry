@@ -17,6 +17,7 @@ import fullstory from 'app/../images/logos/logo-fullstory.svg';
 import github from 'app/../images/logos/logo-github.svg';
 import githubEnterprise from 'app/../images/logos/logo-github-enterprise.svg';
 import gitlab from 'app/../images/logos/logo-gitlab.svg';
+import gitea from 'app/../images/logos/logo-gitea.svg';
 import heroku from 'app/../images/logos/logo-heroku.svg';
 import jira from 'app/../images/logos/logo-jira.svg';
 import jiraserver from 'app/../images/logos/logo-jira-server.svg';
@@ -71,6 +72,7 @@ export const ICON_PATHS = {
   github,
   github_enterprise: githubEnterprise,
   gitlab,
+  gitea,
   heroku,
   jira,
   'jira-atlassian-connect': jira,
