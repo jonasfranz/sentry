@@ -88,7 +88,8 @@ class DialogManager<
   };
 
   handleValidate = <F extends keyof Values>(field: F) => () => {
-    const isFieldValueEmpty = !this.state.values[field];
+    const isFieldValueEmpty = !this.state.values[field].trim();
+
     const fieldErrorAlreadyExist = this.state.errors[field];
 
     if (isFieldValueEmpty && fieldErrorAlreadyExist) {
