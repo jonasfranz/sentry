@@ -65,7 +65,7 @@ const alertStyles = ({
   box-shadow: ${theme.dropShadowLight};
   border-radius: ${theme.borderRadius};
   background: ${theme.gray100};
-  border: 1px solid ${theme.borderDark};
+  border: 1px solid ${theme.gray400};
 
   a:not([role='button']) {
     color: ${theme.textColor};

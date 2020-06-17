@@ -56,11 +56,6 @@ const colors = {
   pink400: '#E1567C',
   pink500: '#902D4C',
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Old Colors
-  borderLighter: '#f9f6fd',
-  borderLight: '#E2DBE8',
-  borderDark: '#D1CAD8',
   borderRadius: '4px',
   borderRadiusBottom: '0 0 4px 4px',
   borderRadiusTop: '4px 4px 0 0',
@@ -105,11 +100,11 @@ const alert = {
     background: colors.green400,
   },
   error: {
-    backgroundLight: colors.redLightest,
-    border: colors.redLight,
-    textLight: colors.redLight,
-    iconColor: colors.red,
-    background: colors.red,
+    backgroundLight: colors.red100,
+    border: colors.red400,
+    textLight: colors.red400,
+    iconColor: colors.red400,
+    background: colors.red400,
   },
 } as const;
 
@@ -145,7 +140,7 @@ const button = {
     backgroundActive: colors.white,
     border: '#d8d2de',
     borderActive: '#c9c0d1',
-    focusShadow: color(colors.borderLight)
+    focusShadow: color(colors.gray300)
       .alpha(0.5)
       .string(),
   },
@@ -174,11 +169,11 @@ const button = {
   danger: {
     color: colors.white,
     colorActive: colors.white,
-    background: colors.red,
+    background: colors.red400,
     backgroundActive: '#bf2a1d',
     border: '#bf2a1d',
     borderActive: '#7d1c13',
-    focusShadow: color(colors.red)
+    focusShadow: color(colors.red400)
       .alpha(0.5)
       .string(),
   },

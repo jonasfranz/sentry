@@ -45,7 +45,7 @@ const getCurrentEventMarker = (currentEvent: Event) => {
       symbolSize: [16, 150],
       lineStyle: {
         normal: {
-          color: theme.redLight,
+          color: theme.red400,
           type: 'solid',
           width: 1,
         },
