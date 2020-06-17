@@ -117,7 +117,9 @@ const StyledIconAnchor = styled(IconAnchor)`
 `;
 
 const Permalink = styled('a')`
-  &:hover ${StyledIconAnchor} {
+  flex-grow: 1;
+
+  :hover ${StyledIconAnchor} {
     display: block;
     color: ${p => p.theme.gray500};
   }

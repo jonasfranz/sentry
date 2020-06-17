@@ -594,11 +594,11 @@ exports[`SharedGroupDetails renders 1`] = `
                                         href="#message"
                                       >
                                         <a
-                                          className="permalink css-5r3te8-Permalink e1fbjd861"
+                                          className="permalink css-oabkc7-Permalink e1fbjd861"
                                           href="#message"
                                         >
                                           <StyledIconAnchor>
-                                            <ForwardRef
+                                            <IconAnchor
                                               className="css-1x65iks-StyledIconAnchor e1fbjd860"
                                             >
                                               <ForwardRef(SvgIcon)
@@ -616,7 +616,7 @@ exports[`SharedGroupDetails renders 1`] = `
                                                   />
                                                 </svg>
                                               </ForwardRef(SvgIcon)>
-                                            </ForwardRef>
+                                            </IconAnchor>
                                           </StyledIconAnchor>
                                           <h3>
                                             Message
