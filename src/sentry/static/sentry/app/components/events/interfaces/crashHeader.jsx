@@ -192,6 +192,7 @@ const Wrapper = styled('div')`
 const TitleWrapper = styled('div')`
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-start;
   align-items: center;
   > * {
     margin-bottom: ${space(0.5)};
