@@ -52,12 +52,18 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
         />
       </Field>
 
-      <Field
-        flexibleControlStateSize
-        label={
-          <Label>
-            <div>{t('Relay Key')}</div>
-            {!disables.publicKey && (
+      {disables.publicKey ? (
+        <Field flexibleControlStateSize label={t('Relay Key')} inline={false} stacked>
+          <TextCopyInput onCopy={onCopy(values.publicKey)}>
+            {values.publicKey}
+          </TextCopyInput>
+        </Field>
+      ) : (
+        <Field
+          flexibleControlStateSize
+          label={
+            <Label>
+              <div>{t('Relay Key')}</div>
               <QuestionTooltip
                 position="top"
                 size="sm"
@@ -65,18 +71,12 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
                   'Only enter the Relay Key value from your credentials file. Never share the Secret key with Sentry or any third party'
                 )}
               />
-            )}
-          </Label>
-        }
-        error={errors.publicKey}
-        inline={false}
-        stacked
-      >
-        {disables.publicKey ? (
-          <TextCopyInput onCopy={onCopy(values.publicKey)}>
-            {values.publicKey}
-          </TextCopyInput>
-        ) : (
+            </Label>
+          }
+          error={errors.publicKey}
+          inline={false}
+          stacked
+        >
           <Input
             type="text"
             name="publicKey"
@@ -84,8 +84,8 @@ const Form = ({values, onChange, errors, onValidate, disables}: Props) => {
             value={values.publicKey}
             onBlur={onValidate('publicKey')}
           />
-        )}
-      </Field>
+        </Field>
+      )}
       <Field
         flexibleControlStateSize
         label={t('Description (Optional)')}

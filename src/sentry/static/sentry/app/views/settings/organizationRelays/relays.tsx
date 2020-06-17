@@ -20,6 +20,7 @@ import DateTime from 'app/components/dateTime';
 import space from 'app/styles/space';
 import {defined} from 'app/utils';
 import Tooltip from 'app/components/tooltip';
+import QuestionTooltip from 'app/components/questionTooltip';
 
 import {Relay} from './types';
 import {Add, Edit} from './dialogs';
@@ -123,11 +124,18 @@ class Relays extends AsyncComponent<Props, State> {
                 }
               `}
             >
-              {relays.map(({publicKey: key, name, created}) => {
+              {relays.map(({publicKey: key, name, created, description}) => {
                 const maskedKey = key.replace(/[^(.*)]/g, '*');
                 return (
                   <React.Fragment key={key}>
-                    <Text>{name}</Text>
+                    {description ? (
+                      <Name>
+                        <Text>{name}</Text>
+                        <QuestionTooltip position="top" size="sm" title={description} />
+                      </Name>
+                    ) : (
+                      <Text>{name}</Text>
+                    )}
                     <KeyWrapper>
                       <Key content={maskedKey}>{maskedKey}</Key>
                       <IconWrapper>
@@ -202,8 +210,11 @@ const Actions = styled('div')`
   display: grid;
   grid-template-columns: repeat(2, max-content);
   grid-gap: ${space(1)};
+  align-items: center;
 `;
 
 const StyledButton = styled(Button)`
   width: 40px;
 `;
+
+const Name = styled(Actions)``;
