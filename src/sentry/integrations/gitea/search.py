@@ -35,7 +35,7 @@ class GiteaIssueSearchEndpoint(IntegrationEndpoint):
                 raise
             return Response(
                 [
-                    {"label": "#%s %s" % (i["number"], i["title"]), "value": i["number"]}
+                    {"label": "#%s %s" % (i["number"], i["title"]), "value": u"{}#{}".format(repo, i["number"])}
                     for i in response
                 ]
             )

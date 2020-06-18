@@ -287,6 +287,7 @@ class GiteaIntegrationProvider(IntegrationProvider):
                 "type": "gitea",
                 "external_id": u"{}:{}".format(hostname, user["id"]),
                 "data": oauth_data,
+                "scopes": []
             },
         }
         return integration

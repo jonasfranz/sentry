@@ -144,7 +144,7 @@ class GiteaIssueBasic(IssueBasicMixin):
         return {
             "key": project_and_issue_index,
             "title": issue["title"],
-            "description": issue["description"],
+            "description": issue["body"],
             "url": issue["html_url"],
             "repo": repo,
             "metadata": {"display_name": project_and_issue_index},
