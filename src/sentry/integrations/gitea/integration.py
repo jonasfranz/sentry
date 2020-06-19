@@ -23,7 +23,7 @@ from sentry.utils.hashlib import sha1_text
 
 from .client import GiteaApiClient, GiteaSetupClient
 from .issues import GiteaIssueBasic
-from .repository import GitlabRepositoryProvider
+from .repository import GiteaRepositoryProvider
 
 DESCRIPTION = """
 Connect your Sentry organization to an organization or user in your Gitea instance or gitea.com, enabling the following features:
@@ -287,7 +287,7 @@ class GiteaIntegrationProvider(IntegrationProvider):
                 "type": "gitea",
                 "external_id": u"{}:{}".format(hostname, user["id"]),
                 "data": oauth_data,
-                "scopes": []
+                "scopes": [],
             },
         }
         return integration
@@ -297,5 +297,5 @@ class GiteaIntegrationProvider(IntegrationProvider):
 
         # TODO
         bindings.add(
-            "integration-repository.provider", GitlabRepositoryProvider, id="integrations:gitea"
+            "integration-repository.provider", GiteaRepositoryProvider, id="integrations:gitea"
         )
