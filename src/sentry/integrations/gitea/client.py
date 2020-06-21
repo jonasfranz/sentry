@@ -167,7 +167,7 @@ class GiteaApiClient(ApiClient):
             "config": {
                 "url": absolute_uri(hook_uri),
                 "content_type": "json",
-                "secret": u"{}:{}".format(model.external_id, model.metadata["webhook_secret"]),
+                "secret": u"{}#{}".format(model.external_id, model.metadata["webhook_secret"]),
             },
         }
         resp = self.post(path, data)

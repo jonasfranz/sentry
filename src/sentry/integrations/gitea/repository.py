@@ -62,7 +62,7 @@ class GiteaRepositoryProvider(providers.IntegrationRepositoryProvider):
         installation = self.get_installation(repo.integration_id, repo.organization_id)
         client = installation.get_client()
         try:
-            client.delete_project_webhook(repo.config["repo"], repo.config["webhook_id"])
+            client.delete_repo_webhook(repo.config["repo"], repo.config["webhook_id"])
         except ApiError as e:
             if e.code == 404:
                 return

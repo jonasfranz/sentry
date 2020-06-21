@@ -3,6 +3,8 @@ from __future__ import absolute_import
 import dateutil.parser
 import logging
 import six
+import hmac
+import hashlib
 
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, Http404
@@ -19,7 +21,7 @@ from sentry.utils import json
 
 logger = logging.getLogger("sentry.webhooks")
 
-PROVIDER_NAME = "integrations:gitlab"
+PROVIDER_NAME = "integrations:gitea"
 
 
 class Webhook(object):
@@ -30,17 +32,15 @@ class Webhook(object):
         """
         Given a webhook payload, get the associated Repository record.
 
-        Assumes a 'project' key in event payload.
+        Assumes repo in event payload.
         """
         try:
-            project_id = event["project"]["id"]
+            repo_name = event["repository"]["full_name"]
         except KeyError:
-            logger.info(
-                "gitlab.webhook.missing-projectid", extra={"integration_id": integration.id}
-            )
+            logger.info("gitea.webhook.missing-repo-name", extra={"integration_id": integration.id})
             raise Http404()
 
-        external_id = u"{}:{}".format(integration.metadata["instance"], project_id)
+        external_id = u"{}:{}".format(integration.metadata["instance"], repo_name)
         try:
             repo = Repository.objects.get(
                 organization_id=organization.id, provider=PROVIDER_NAME, external_id=external_id
@@ -51,69 +51,54 @@ class Webhook(object):
 
     def update_repo_data(self, repo, event):
         """
-        # TODO(kmclb): the name w namespace bit is currently causing false positives
-        # for people with three or more levels in their repo names. Need to research
-        # exactly how gitlab handles these cases (what's the name, what's the namespace,
-        # does the url reliably have the info we need?) and then fix this for those
-        # cases.
-
         Given a webhook payload, update stored repo data if needed.
 
-        Assumes a 'project' key in event payload, with certain subkeys. Rework
-        this if that stops being a safe assumption.
+        Assumes a "repository" key in event payload, with certain subkeys.
         """
 
-        project = event["project"]
+        event_repo = event["repository"]
 
-        name_from_event = u"{} / {}".format(project["namespace"], project["name"])
-        url_from_event = project["web_url"]
-        path_from_event = project["path_with_namespace"]
+        repo_name_from_event = event_repo["full_name"]
+        url_from_event = event_repo["html_url"]
 
         if (
-            repo.name != name_from_event
+            repo.name != repo_name_from_event
             or repo.url != url_from_event
-            or repo.config.get("path") != path_from_event
+            or repo.config.get("repo") != repo_name_from_event
         ):
             repo.update(
-                name=name_from_event,
+                name=repo_name_from_event,
                 url=url_from_event,
-                config=dict(repo.config, path=path_from_event),
+                config=dict(repo.config, path=repo_name_from_event),
             )
 
 
-class MergeEventWebhook(Webhook):
+class PullRequestEventWebhook(Webhook):
     """
-    Handle Merge Request Hook
-
-    See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#merge-request-events
+    Handle Pull Request Hook
     """
 
     def __call__(self, integration, organization, event):
         repo = self.get_repo(integration, organization, event)
         if repo is None:
             return
+        self.update_repo_data(repo, event)
 
-        # TODO(kmclb): turn this back on once tri-level repo problem has been solved
-        # while we're here, make sure repo data is up to date
-        # self.update_repo_data(repo, event)
-
+        author_email = None
         try:
-            number = event["object_attributes"]["iid"]
-            title = event["object_attributes"]["title"]
-            body = event["object_attributes"]["description"]
-            created_at = event["object_attributes"]["created_at"]
-            merge_commit_sha = event["object_attributes"]["merge_commit_sha"]
+            pull_request = event["pull_request"]
 
-            last_commit = event["object_attributes"]["last_commit"]
-            author_email = None
-            author_name = None
-            if last_commit:
-                author_email = last_commit["author"]["email"]
-                author_name = last_commit["author"]["name"]
+            number = pull_request["number"]
+            title = pull_request["title"]
+            body = pull_request["body"]
+            created_at = pull_request["created_at"]
+            author_name = pull_request["user"]["username"]
+            author_email = pull_request["user"]["email"]
+            merge_commit_sha = pull_request["merge_commit_sha"] if pull_request["merged"] else None
         except KeyError as e:
             logger.info(
-                "gitlab.webhook.invalid-merge-data",
-                extra={"integration_id": integration.id, "error": six.string_type(e)},
+                "gitea.webhook.invalid-pull-request-data",
+                extra={"integration_id": integration.id, "error": six.text_type(e)},
             )
 
         if not author_email:
@@ -143,8 +128,6 @@ class MergeEventWebhook(Webhook):
 class PushEventWebhook(Webhook):
     """
     Handle push hook
-
-    See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#push-events
     """
 
     def __call__(self, integration, organization, event):
@@ -152,22 +135,17 @@ class PushEventWebhook(Webhook):
         if repo is None:
             return
 
-        # TODO(kmclb): turn this back on once tri-level repo problem has been solved
-        # while we're here, make sure repo data is up to date
-        # self.update_repo_data(repo, event)
+        self.update_repo_data(repo, event)
 
         authors = {}
 
-        # TODO gitlab only sends a max of 20 commits. If a push contains
-        # more commits they provide a total count and require additional API
-        # requests to fetch the commit details
         for commit in event.get("commits", []):
             if IntegrationRepositoryProvider.should_ignore_commit(commit["message"]):
                 continue
 
             author_email = commit["author"]["email"]
 
-            # TODO(dcramer): we need to deal with bad values here, but since
+            # TODO: we need to deal with bad values here, but since
             # its optional, lets just throw it out for now
             if author_email is None or len(author_email) > 75:
                 author = None
@@ -195,29 +173,51 @@ class PushEventWebhook(Webhook):
                 pass
 
 
-class GitlabWebhookEndpoint(View):
-    provider = "gitlab"
+class GiteaWebhookEndpoint(View):
+    provider = "gitea"
 
-    _handlers = {"Push Hook": PushEventWebhook, "Merge Request Hook": MergeEventWebhook}
+    _handlers = {"push": PushEventWebhook, "pull_request": PullRequestEventWebhook}
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         if request.method != "POST":
             return HttpResponse(status=405)
 
-        return super(GitlabWebhookEndpoint, self).dispatch(request, *args, **kwargs)
+        return super(GiteaWebhookEndpoint, self).dispatch(request, *args, **kwargs)
+
+    def check_signature(self, body, secret, signature):
+        # See https://docs.gitea.io/en-us/webhooks/
+        mod = hashlib.sha256
+        expected = hmac.new(key=secret.encode("utf-8"), msg=body, digestmod=mod).hexdigest()
+        return constant_time_compare(expected, signature)
 
     def post(self, request):
-        token = "<unknown>"
+        signature = "<unknown>"
         try:
-            # Munge the token to extract the integration external_id.
-            # gitlab hook payloads don't give us enough unique context
-            # to find data on our side so we embed one in the token.
-            token = request.META["HTTP_X_GITLAB_TOKEN"]
-            instance, group_path, secret = token.split(":")
-            external_id = u"{}:{}".format(instance, group_path)
+            signature = request.META["HTTP_X_GITEA_SIGNATURE"]
         except Exception:
-            logger.info("gitlab.webhook.invalid-token", extra={"token": token})
+            logger.info("gitea.webhook.no-signature", extra={"signature": signature})
+            return HttpResponse(status=400)
+
+        try:
+            event = json.loads(request.body.decode("utf-8"))
+        except JSONDecodeError:
+            logger.info("gitea.webhook.invalid-json")
+            return HttpResponse(status=400)
+
+        external_id = None
+        webhook_secret = None
+        try:
+            external_id, webhook_secret = event["secret"].split("#")
+        except Exception:
+            logger.info("gitea.webhook.invalid-secret", extra={"externalId": external_id})
+            return HttpResponse(status=400)
+
+        if not self.check_signature(six.binary_type(request.body), event["secret"], signature):
+            logger.info(
+                "gitea.webhook.invalid-signature",
+                extra={"secret": event["secret"], "signature": signature},
+            )
             return HttpResponse(status=400)
 
         try:
@@ -228,30 +228,21 @@ class GitlabWebhookEndpoint(View):
             )
         except Integration.DoesNotExist:
             logger.info(
-                "gitlab.webhook.invalid-organization",
-                extra={"external_id": request.META["HTTP_X_GITLAB_TOKEN"]},
+                "gitea.webhook.invalid-organization", extra={"external_id": external_id},
             )
             return HttpResponse(status=400)
 
-        if not constant_time_compare(secret, integration.metadata["webhook_secret"]):
+        if not constant_time_compare(webhook_secret, integration.metadata["webhook_secret"]):
             logger.info(
-                "gitlab.webhook.invalid-token-secret", extra={"integration_id": integration.id}
+                "gitea.webhook.invalid-token-secret", extra={"integration_id": integration.id}
             )
             return HttpResponse(status=400)
 
         try:
-            event = json.loads(request.body.decode("utf-8"))
-        except JSONDecodeError:
-            logger.info(
-                "gitlab.webhook.invalid-json", extra={"external_id": integration.external_id}
-            )
-            return HttpResponse(status=400)
-
-        try:
-            handler = self._handlers[request.META["HTTP_X_GITLAB_EVENT"]]
+            handler = self._handlers[request.META["HTTP_X_GITEA_EVENT"]]
         except KeyError:
             logger.info(
-                "gitlab.webhook.missing-event", extra={"event": request.META["HTTP_X_GITLAB_EVENT"]}
+                "gitea.webhook.missing-event", extra={"event": request.META["HTTP_X_GITEA_EVENT"]}
             )
             return HttpResponse(status=400)
 
